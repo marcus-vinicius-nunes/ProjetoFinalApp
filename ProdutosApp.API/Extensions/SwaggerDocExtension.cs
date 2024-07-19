@@ -12,13 +12,13 @@ namespace ProdutosApp.API.Extensions
                 {
                     options.SwaggerDoc("v1", new OpenApiInfo
                     {
-                        Title = "ProdutosApp API - Treinamento C# Avançado Formação Arquiteto",
+                        Title = "ProjetoFinalApp API - Treinamento C# Avançado Formação Arquiteto",
                         Description = "API para controle de produtos e Fornecedores.",
                         Version = "1.0",
                         Contact = new OpenApiContact
                         {
                             Name = "COTI Informática",
-                            Email = "contato@cotiinformatica.com.br",
+                            Email = "sergio.coti@gmail.com",
                             Url = new Uri("http://wwww.cotiinformatica.com.br")
                         }
                     });
