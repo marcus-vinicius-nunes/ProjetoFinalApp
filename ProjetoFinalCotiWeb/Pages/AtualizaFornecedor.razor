@@ -1,0 +1,83 @@
+﻿@page "/AtualizaFornecedor"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@using Newtonsoft.Json
+@using ProdutosApp.Domain.Dtos
+@using ProjetoFinalCotiWeb.Models
+
+
+<div class="card m-3">
+    <div class="card-body">
+
+        <h4>Cadastro de fornecedor</h4>
+
+        <div class="mb-3">
+            <h5 class="text-success">@mensagemSucesso</h5>
+            <h5 class="text-danger">@mensagemErro</h5>
+        </div>
+
+        @* Formulário *@
+        <EditForm Model="@model" OnValidSubmit="@OnSubmit">
+
+            @* Ativar as validações do DataAnnotations *@
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Identificador:</label>
+                <InputNumber class="form-control" @bind-Value="model.Id" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.Id)" />
+                </span>
+            </div>
+            <div class="mb-3">
+                <label>Nome:</label>
+                <InputText class="form-control" @bind-Value="model.Nome" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.Nome)" />
+                </span>
+            </div>
+
+            <div class="mb-3 d-grid">
+                <input type="submit" class="btn btn-primary" value="Atualizar" />
+            </div>
+
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    private FornecedorViewModel model = new FornecedorViewModel();
+    private string? mensagemSucesso;
+    private string? mensagemErro;
+
+    protected async Task OnSubmit()
+    {
+        try
+        {
+            mensagemSucesso = string.Empty;
+            mensagemErro = string.Empty;
+
+            var content = new StringContent(JsonConvert.SerializeObject(model), System.Text.Encoding.UTF8, "application/json");
+            var response = await Http.PutAsync($"api/Fornecedores/atualizaFornecedor/{model.Id}", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var fornecedor = JsonConvert.DeserializeObject<FornecedoresResponseDto>(responseContent);
+                mensagemSucesso = "Fornecedor atualizado com sucesso.";
+                model = new FornecedorViewModel(); 
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<ErrorViewModel>(responseContent);
+                mensagemErro = error.Message;
+            }
+        }
+        catch (Exception e)
+        {
+            mensagemErro = e.Message;
+        }
+    }
+
+}

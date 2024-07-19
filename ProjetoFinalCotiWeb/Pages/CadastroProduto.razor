@@ -1,0 +1,96 @@
+﻿@page "/CadastroProduto"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@using Newtonsoft.Json
+@using ProdutosApp.Domain.Dtos
+@using ProjetoFinalCotiWeb.Models
+
+
+<div class="card m-3">
+    <div class="card-body">
+
+        <h4>Cadastro de produto</h4>
+
+        <div class="mb-3">
+            <h5 class="text-success">@mensagemSucesso</h5>
+            <h5 class="text-danger">@mensagemErro</h5>
+        </div>
+
+        @* Formulário *@
+        <EditForm Model="@model" OnValidSubmit="@OnSubmit">
+
+            @* Ativar as validações do DataAnnotations *@
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Nome:</label>
+                <InputText class="form-control" @bind-Value="model.Nome" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.Nome)" />
+                </span>
+            </div>
+            <div class="mb-3">
+                <label>Preço:</label>
+                <InputNumber class="form-control" @bind-Value="model.Preco" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.Preco)" />
+                </span>
+            </div>
+            <div class="mb-3">
+                <label>Quantidade:</label>
+                <InputNumber class="form-control" @bind-Value="model.Quantidade" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.Quantidade)" />
+                </span>
+            </div>
+            <div class="mb-3">
+                <label>Fornecedor:</label>
+                <InputNumber class="form-control" @bind-Value="model.FornecedorId" />
+                <span class="text-danger">
+                    <ValidationMessage For="@(() => model.FornecedorId)" />
+                </span>
+            </div>
+
+            <div class="mb-3 d-grid">
+                <input type="submit" class="btn btn-primary" value="Cadastrar" />
+            </div>
+
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    private ProdutoViewModel model = new ProdutoViewModel();
+    private string? mensagemSucesso;
+    private string? mensagemErro;
+
+    protected async Task OnSubmit()
+    {
+        try
+        {
+            mensagemSucesso = string.Empty;
+            mensagemErro = string.Empty;
+
+
+            var response = await Http.PostAsJsonAsync("api/Produtos/cadastrarProduto", model);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var produto = JsonConvert.DeserializeObject<ProdutosResponseDto>(content);
+                mensagemSucesso = "Produto cadastrado com sucesso.";
+                model = new ProdutoViewModel();
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<ErrorViewModel>(content);
+                mensagemErro = error.Message;
+            }
+        }
+        catch (Exception e)
+        {
+            mensagemErro = e.Message;
+        }
+    }
+}
